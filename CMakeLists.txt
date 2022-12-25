@@ -81,8 +81,6 @@ target_include_directories(
   proxsuite INTERFACE "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>")
 set(EXPORTED_TARGETS_LIST proxsuite)
 
-add_header_group(${PROJECT_NAME}_HEADERS)
-
 if(BUILD_WITH_VECTORIZATION_SUPPORT)
   add_library(proxsuite-vectorized INTERFACE)
   target_link_libraries(
