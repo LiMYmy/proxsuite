@@ -121,11 +121,11 @@
 
 #define VEG_NO_INLINE HEDLEY_NEVER_INLINE
 
-#if defined(__cpp_concepts) && __cpp_concepts >= 201907L
-#define VEG_HAS_CONCEPTS 1
-#else
+// #if defined(__cpp_concepts) && __cpp_concepts >= 201907L
+// #define VEG_HAS_CONCEPTS 1
+// #else
 #define VEG_HAS_CONCEPTS 0
-#endif
+// #endif
 
 #if defined(VEG_WITH_CXX17_SUPPORT)
 #define VEG_DECLVAL(...) (static_cast<__VA_ARGS__ (*)() noexcept>(nullptr)())
@@ -1148,7 +1148,7 @@ struct StrLiteralLen<StrLiteralImpl<N> const>
 template<typename Seq, auto Literal>
 struct StrLiteralExpand;
 
-template<usize... Is, StrLiteralImpl<isize{ sizeof...(Is) }> L>
+template<usize... Is, StrLiteralImpl<isize{static_cast<isize>(sizeof...(Is))}> L>
 struct StrLiteralExpand<_meta::integer_sequence<usize, Is...>, L>
 {
   using Type = StrLiteralConstant<L._[Is]...>;
