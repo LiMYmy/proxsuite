@@ -2,11 +2,7 @@
 # Copyright (c) 2022 INRIA
 #
 
-cmake_minimum_required(VERSION 3.10)
-
-if(DEFINED PROJECT_NAME)
-  set(PROXSUITE_AS_SUBPROJECT)
-endif()
+cmake_minimum_required(VERSION 3.14)
 
 set(PROJECT_NAME proxsuite)
 
@@ -53,9 +49,17 @@ set(SIMDE_HINT_FAILURE
     "Set BUILD_WITH_VECTORIZATION_SUPPORT=OFF or install Simde on your system.\n If Simde is already installed, ensure that the CMake variable CMAKE_MODULE_PATH correctly points toward the location of FindSimde.cmake file."
 )
 if(BUILD_WITH_VECTORIZATION_SUPPORT)
-  # add_project_dependency(Simde REQUIRED FIND_EXTERNAL "Simde"
-  #                        PKG_CONFIG_REQUIRES "simde")
-  find_package(Simde REQUIRED)
+  include(FetchContent)
+  # set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
+  FetchContent_Declare(
+      simde
+      GIT_REPOSITORY https://github.com/simd-everywhere/simde.git
+      GIT_TAG v0.7.2
+      GIT_SHALLOW    TRUE
+  )
+  FetchContent_MakeAvailable(simde)
+  set(Simde_INCLUDE_DIR ${simde_SOURCE_DIR})
 endif()
 
 # Build the main library
@@ -88,7 +92,7 @@ if(BUILD_WITH_VECTORIZATION_SUPPORT)
   target_link_libraries(
     proxsuite-vectorized
     PUBLIC
-    INTERFACE simde)
+    INTERFACE ${Simde_INCLUDE_DIR})
   target_compile_definitions(proxsuite-vectorized INTERFACE PROXSUITE_VECTORIZE)
   list(APPEND EXPORTED_TARGETS_LIST proxsuite-vectorized)
 endif()
