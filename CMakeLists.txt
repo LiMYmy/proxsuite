@@ -9,50 +9,7 @@ if(DEFINED PROJECT_NAME)
 endif()
 
 set(PROJECT_NAME proxsuite)
-set(PROJECT_DESCRIPTION "The Advanced Proximal Optimization Toolbox")
-set(PROJECT_URL "http://github.com/Simple-Robotics/proxsuite")
-set(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
-set(PROJECT_USE_CMAKE_EXPORT TRUE)
-set(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 
-# Disable -Werror on Unix for now.
-set(CXX_DISABLE_WERROR True)
-set(CMAKE_VERBOSE_MAKEFILE True)
-
-# Set CMake Policies
-if(POLICY CMP0068)
-  cmake_policy(SET CMP0068 NEW)
-endif(POLICY CMP0068)
-
-# Check if the submodule cmake have been initialized
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake-module/base.cmake")
-  message(
-    FATAL_ERROR
-      "\nPlease run the following command first:\ngit submodule update --init\n"
-  )
-endif()
-
-# ----------------------------------------------------
-# --- OPTIONS  ---------------------------------------
-# Need to be set before including base.cmake
-# ----------------------------------------------------
-option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
-set(DOXYGEN_USE_MATHJAX YES)
-set(DOXYGEN_USE_TEMPLATE_CSS YES)
-
-include(${CMAKE_CURRENT_LIST_DIR}/cmake-module/base.cmake)
-compute_project_args(PROJECT_ARGS LANGUAGES CXX)
-project(${PROJECT_NAME} ${PROJECT_ARGS})
-
-include(${CMAKE_CURRENT_LIST_DIR}/cmake-module/ide.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake-module/apple.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake-module/julia.cmake)
-include(CMakeDependentOption)
-
-# If needed, set CMake policy for APPLE systems
-apply_default_apple_configuration()
-
-option(BUILD_PYTHON_INTERFACE "Build the Python bindings" OFF)
 option(INITIALIZE_EIGEN_WITH_NAN "Initialize Eigen objects with NAN values" OFF)
 option(CHECK_RUNTIME_MALLOC
        "Check if some memory allocations are performed at runtime" OFF)
@@ -65,12 +22,6 @@ option(BUILD_BINDINGS_WITH_AVX2_SUPPORT "Build the bindings with AVX2 support."
 option(BUILD_BINDINGS_WITH_AVX512_SUPPORT
        "Build the bindings with AVX512 support." ON)
 option(TEST_JULIA_INTERFACE "Run the julia examples as unittest" OFF)
-
-set(CMAKE_MODULE_PATH
-    "${CMAKE_CURRENT_LIST_DIR}/cmake-module/find-external/Julia"
-    ${CMAKE_MODULE_PATH})
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-external"
-                      ${CMAKE_MODULE_PATH})
 
 message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 if(INITIALIZE_EIGEN_WITH_NAN)
@@ -141,17 +92,3 @@ if(BUILD_WITH_VECTORIZATION_SUPPORT)
   list(APPEND EXPORTED_TARGETS_LIST proxsuite-vectorized)
 endif()
 
-if(NOT PROXSUITE_AS_SUBPROJECT)
-  install(
-    TARGETS ${EXPORTED_TARGETS_LIST}
-    EXPORT ${TARGETS_EXPORT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
-endif(NOT PROXSUITE_AS_SUBPROJECT)
-
-add_subdirectory(bindings)
-if(BUILD_TESTING AND NOT PROXSUITE_AS_SUBPROJECT)
-  add_subdirectory(test)
-  add_subdirectory(examples)
-endif()
